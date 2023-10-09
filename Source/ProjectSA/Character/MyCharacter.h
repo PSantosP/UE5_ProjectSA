@@ -36,6 +36,8 @@ public:
 
 	void HandleMoveInput(const FInputActionValue& InputValue);
 	void HandleLookAroundInput(const FInputActionValue& InputValue);
+	void HandleJogOverrideStartInput(const FInputActionValue& InputValue);
+	void HandleJogOverrideEndInput(const FInputActionValue& InputValue);
 	
 	UFUNCTION(BlueprintCallable)
 	static float MakeLiteralFloat(float Value) { return Value; }

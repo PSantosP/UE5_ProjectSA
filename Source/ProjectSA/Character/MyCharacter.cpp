@@ -45,7 +45,7 @@ AMyCharacter::AMyCharacter()
 		CharacterMesh->SetSkeletalMesh(SM.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder<UBlueprint> ABP(TEXT("/Script/Engine.AnimBlueprint'/Game/EchoLocomotion/ABP_Echo.ABP_Echo'"));
+	static ConstructorHelpers::FObjectFinder<UBlueprint> ABP(TEXT("/Script/Engine.AnimBlueprint'/Game/EchoLocomotion/ABP_MyAnimInstance.ABP_MyAnimInstance'"));
 	if (ABP.Succeeded())
 	{
 		CharacterMesh->SetAnimClass(ABP.Object->GeneratedClass);
@@ -143,6 +143,8 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		/*EnhancedInputComponent->BindAction(LookUp, ETriggerEvent::Started, this, &AMyCharacter::HandleLookUpInput);*/
 		EnhancedInputComponent->BindAction(LookAround, ETriggerEvent::Triggered, this, &AMyCharacter::HandleLookAroundInput);
 		/*EnhancedInputComponent->BindAction(LookUp, ETriggerEvent::Completed, this, &AMyCharacter::HandleLookUpInput);*/
+		EnhancedInputComponent->BindAction(JogOverride, ETriggerEvent::Triggered, this, &AMyCharacter::HandleJogOverrideStartInput);
+		EnhancedInputComponent->BindAction(JogOverride, ETriggerEvent::Completed, this, &AMyCharacter::HandleJogOverrideEndInput);
 	}
 }
 
@@ -152,8 +154,6 @@ void AMyCharacter::HandleMoveInput(const FInputActionValue& InputValue)
 	FVector2D Movementvector = InputValue.Get<FVector2D>();
 	if (Controller != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Input Move Action Triggered"));
-
 		const FRotator CharacterRotator = Controller->GetControlRotation();
 		const FRotator CharacterYawRoatation(0.f, CharacterRotator.Yaw, 0.f);
 
@@ -172,14 +172,21 @@ void AMyCharacter::HandleLookAroundInput(const FInputActionValue& InputValue)
 	// 좌우
 	if (Controller != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("X : %f"), LookAxisVector.X);
-		UE_LOG(LogTemp, Warning, TEXT("Y : %f"), LookAxisVector.Y);
 		AddControllerYawInput(LookAxisVector.X);			// 상하
 		AddControllerPitchInput(LookAxisVector.Y);			// 좌우
 		// pitch yaw roll -> x, y, z
 	}
 }
 
+void AMyCharacter::HandleJogOverrideStartInput(const FInputActionValue& InputValue)
+{
+	GetCharacterMovement()->MaxWalkSpeed = 427.f;
+}
+
+void AMyCharacter::HandleJogOverrideEndInput(const FInputActionValue& InputValue)
+{
+	GetCharacterMovement()->MaxWalkSpeed = 147.f;
+}
 
 
 FVector AMyCharacter::GetMovementSpped()
