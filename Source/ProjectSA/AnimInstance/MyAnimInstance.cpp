@@ -180,9 +180,18 @@ void UMyAnimInstance::UpdateCharacterRotation()
 		case LOCOMOTION_STATE::Idle:
 			break;
 		case LOCOMOTION_STATE::Walk:
-			/*PrimaryTargetRotation*/
+			PrimaryTargetRotation = FMath::RInterpTo(PrimaryTargetRotation, GetTargetRotation(), DeltaTimeX, 1000.f);
+			SecondaryTargetRotation = FMath::RInterpTo(SecondaryTargetRotation, PrimaryTargetRotation, DeltaTimeX, 10.f);
+			Character->SetActorRotation(FRotator(SecondaryTargetRotation.Roll, SecondaryTargetRotation.Pitch, 0.f));
+			/*UKismetMathLibrary::SafeDivide(GetCurveValue((TEXT("MoveData_WalkRotationDelta")));*/
+			// TODO WalkCachedAnimStateData가 필요
 			break;
 		case LOCOMOTION_STATE::Jog:
+			PrimaryTargetRotation = FMath::RInterpTo(PrimaryTargetRotation, GetTargetRotation(), DeltaTimeX, 1000.f);
+			SecondaryTargetRotation = FMath::RInterpTo(SecondaryTargetRotation, PrimaryTargetRotation, DeltaTimeX, 10.f);
+			Character->SetActorRotation(FRotator(SecondaryTargetRotation.Roll, SecondaryTargetRotation.Pitch, 0.f));
+			/*UKismetMathLibrary::SafeDivide(GetCurveValue((TEXT("MoveData_WalkRotationDelta")));*/
+			// TODO JogCachedAnimStateData가 필요
 			break;
 		}
 	}
