@@ -52,6 +52,8 @@ public:
 	UFUNCTION()
 	void ResetTargetRotations();
 	UFUNCTION()
+	FRotator GetTargetRotation();
+	UFUNCTION()
 	void PrintEnumToString(LOCOMOTION_STATE state);
 
 private:
@@ -98,4 +100,6 @@ private:
 	bool bTrueHasExcuteOnce;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Locomotion", meta = (AllowPrivateAccess = "true"))
 	bool bFalseHasExcuteOnce;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Rotation", meta = (AllowPrivateAccess = "true"))
+	bool DoInputVectorRotation;
 };

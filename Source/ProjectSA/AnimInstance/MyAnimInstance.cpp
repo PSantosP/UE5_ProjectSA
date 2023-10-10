@@ -171,9 +171,24 @@ void UMyAnimInstance::UpdateOnJogEntry()
 
 void UMyAnimInstance::UpdateCharacterRotation()
 {
+	//TODO CachedAnimStateData를 가져와야 함
 	if (!Character->HasAnyRootMotion())
 	{
-
+		// 아무 움직임이 없을 때.
+		switch (LocomotionState)
+		{
+		case LOCOMOTION_STATE::Idle:
+			break;
+		case LOCOMOTION_STATE::Walk:
+			/*PrimaryTargetRotation*/
+			break;
+		case LOCOMOTION_STATE::Jog:
+			break;
+		}
+	}
+	else
+	{
+		ResetTargetRotations();
 	}
 }
 
@@ -181,6 +196,18 @@ void UMyAnimInstance::ResetTargetRotations()
 {
 	PrimaryTargetRotation = Character->GetActorRotation();
 	SecondaryTargetRotation = PrimaryTargetRotation;
+}
+
+FRotator UMyAnimInstance::GetTargetRotation()
+{
+	if (DoInputVectorRotation == true)
+	{
+		return FRotator(0.f, 0.f, FRotationMatrix::MakeFromX(InputVector).Rotator().Yaw);
+	}
+	else
+	{
+		return FRotator(0.f, 0.f, FRotationMatrix::MakeFromX(Velocity).Rotator().Yaw);
+	}
 }
 
 void UMyAnimInstance::PrintEnumToString(LOCOMOTION_STATE state)
