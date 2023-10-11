@@ -26,9 +26,9 @@ void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 		DetermineLocomotionState();
 
-		//TrackLocomotionState(LOCOMOTION_STATE::Idle);
+		TrackLocomotionState(LOCOMOTION_STATE::Idle);
 		TrackLocomotionState(LOCOMOTION_STATE::Walk);
-		//TrackLocomotionState(LOCOMOTION_STATE::Jog);
+		TrackLocomotionState(LOCOMOTION_STATE::Jog);
 	}
 }
 
@@ -215,7 +215,7 @@ void UMyAnimInstance::UpdateCharacterRotation()
 			SecondaryTargetRotation = FMath::RInterpTo(SecondaryTargetRotation, PrimaryTargetRotation, DeltaTimeX, 10.f);
 			GetCurveValue((TEXT("MoveData_JogRotationDelta")), OutValue);
 			double yawValue = UKismetMathLibrary::SafeDivide(OutValue, WalkStateData.GetGlobalWeight(*this));
-			Character->SetActorRotation(FRotator(SecondaryTargetRotation.Roll, SecondaryTargetRotation.Pitch, SecondaryTargetRotation.Yaw + yawValue));
+			//Character->SetActorRotation(FRotator(SecondaryTargetRotation.Roll, SecondaryTargetRotation.Pitch, SecondaryTargetRotation.Yaw + yawValue));
 			// TODO JogCachedAnimStateData가 필요
 		}
 			break;

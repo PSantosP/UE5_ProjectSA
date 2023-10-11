@@ -110,6 +110,9 @@ AMyCharacter::AMyCharacter()
 	GetCharacterMovement()->AirControlBoostMultiplier = 0.f;
 	GetCharacterMovement()->AirControlBoostVelocityThreshold = 0.f;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->MaxAcceleration = 500.f;
+	GetCharacterMovement()->BrakingFrictionFactor = 0.f;
+
 }
 
 // Called when the game starts or when spawned
