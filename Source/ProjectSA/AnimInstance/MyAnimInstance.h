@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <Animation\CachedAnimData.h>
 #include "CoreMinimal.h"
 #include "MyAnimInstance.generated.h"
 
@@ -30,32 +31,42 @@ class PROJECTSA_API UMyAnimInstance : public UAnimInstance
 protected:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+	virtual void NativePostEvaluateAnimation() override;
 
 public:
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void SetReference();
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void SetEssentialMovementData();
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	bool IsMovementWithinThresholds(float minCurrentSpeed, float minMaxSpeed, float minInputAcceleration);
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void DetermineLocomotionState();
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void TrackLocomotionState(LOCOMOTION_STATE Stat);
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void UpdateLocomotionValues();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void UpdateOnWalkEntry();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void UpdateOnJogEntry();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void UpdateCharacterRotation();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	void ResetTargetRotations();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Functions")
+	void ResetTransitions();
+	UFUNCTION(BlueprintCallable, Category = "Functions")
 	FRotator GetTargetRotation();
 	UFUNCTION()
 	void PrintEnumToString(LOCOMOTION_STATE state);
+
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Set CachedAnimStateData members"), Category = "StateData")
+	static FCachedAnimStateData SetCachedAnimStateDataValues(FCachedAnimStateData structure, const FName state_machine_name, const FName state_name);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Make CachedAnimStateData"), Category = "StateData")
+	static FCachedAnimStateData MakeCachedAnimStateDataValues(const FName state_machine_name, const FName state_name);
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Reference", meta = (AllowPrivateAccess = "true"))
@@ -103,4 +114,10 @@ private:
 	bool bFalseHasExcuteOnce;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Rotation", meta = (AllowPrivateAccess = "true"))
 	bool DoInputVectorRotation;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "StateData", meta = (AllowPrivateAccess = "true"))
+	FCachedAnimStateData WalkStateData;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "StateData", meta = (AllowPrivateAccess = "true"))
+	FCachedAnimStateData JogStateData;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "StateData", meta = (AllowPrivateAccess = "true"))
+	FCachedAnimStateData LocomotionStateData;
 };

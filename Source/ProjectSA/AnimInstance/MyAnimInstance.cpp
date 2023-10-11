@@ -11,6 +11,9 @@ void UMyAnimInstance::NativeInitializeAnimation()
 	Super::NativeInitializeAnimation();
 
 	SetReference();
+	WalkStateData = MakeCachedAnimStateDataValues(TEXT("Locomotion"), TEXT("Walk"));
+	JogStateData = MakeCachedAnimStateDataValues(TEXT("Locomotion"), TEXT("Jog"));
+	LocomotionStateData = MakeCachedAnimStateDataValues(TEXT("Main States"), TEXT("On Ground"));
 }
 
 void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -26,6 +29,17 @@ void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		TrackLocomotionState(LOCOMOTION_STATE::Idle);
 		TrackLocomotionState(LOCOMOTION_STATE::Walk);
 		TrackLocomotionState(LOCOMOTION_STATE::Jog);
+	}
+}
+
+void UMyAnimInstance::NativePostEvaluateAnimation()
+{
+	Super::NativePostEvaluateAnimation();
+
+	if (Character != nullptr)
+	{
+		UpdateCharacterRotation();
+		ResetTransitions();
 	}
 }
 
@@ -172,7 +186,7 @@ void UMyAnimInstance::UpdateOnJogEntry()
 void UMyAnimInstance::UpdateCharacterRotation()
 {
 	//TODO CachedAnimStateData를 가져와야 함
-	if (!Character->HasAnyRootMotion())
+	if (!Character->HasAnyRootMotion() && LocomotionStateData.IsRelevant(*this))
 	{
 		// 아무 움직임이 없을 때.
 		switch (LocomotionState)
@@ -180,18 +194,26 @@ void UMyAnimInstance::UpdateCharacterRotation()
 		case LOCOMOTION_STATE::Idle:
 			break;
 		case LOCOMOTION_STATE::Walk:
+		{
+			float OutValue;
 			PrimaryTargetRotation = FMath::RInterpTo(PrimaryTargetRotation, GetTargetRotation(), DeltaTimeX, 1000.f);
 			SecondaryTargetRotation = FMath::RInterpTo(SecondaryTargetRotation, PrimaryTargetRotation, DeltaTimeX, 10.f);
-			Character->SetActorRotation(FRotator(SecondaryTargetRotation.Roll, SecondaryTargetRotation.Pitch, 0.f));
-			/*UKismetMathLibrary::SafeDivide(GetCurveValue((TEXT("MoveData_WalkRotationDelta")));*/
+			GetCurveValue((TEXT("MoveData_WalkRotationDelta")), OutValue);
+			double yawValue = UKismetMathLibrary::SafeDivide(OutValue, WalkStateData.GetGlobalWeight(*this));
+			Character->SetActorRotation(FRotator(SecondaryTargetRotation.Roll, SecondaryTargetRotation.Pitch, SecondaryTargetRotation.Yaw + yawValue));
 			// TODO WalkCachedAnimStateData가 필요
+		}
 			break;
 		case LOCOMOTION_STATE::Jog:
+		{
+			float OutValue;
 			PrimaryTargetRotation = FMath::RInterpTo(PrimaryTargetRotation, GetTargetRotation(), DeltaTimeX, 1000.f);
 			SecondaryTargetRotation = FMath::RInterpTo(SecondaryTargetRotation, PrimaryTargetRotation, DeltaTimeX, 10.f);
-			Character->SetActorRotation(FRotator(SecondaryTargetRotation.Roll, SecondaryTargetRotation.Pitch, 0.f));
-			/*UKismetMathLibrary::SafeDivide(GetCurveValue((TEXT("MoveData_WalkRotationDelta")));*/
+			GetCurveValue((TEXT("MoveData_JogRotationDelta")), OutValue);
+			double yawValue = UKismetMathLibrary::SafeDivide(OutValue, WalkStateData.GetGlobalWeight(*this));
+			Character->SetActorRotation(FRotator(SecondaryTargetRotation.Roll, SecondaryTargetRotation.Pitch, SecondaryTargetRotation.Yaw + yawValue));
 			// TODO JogCachedAnimStateData가 필요
+		}
 			break;
 		}
 	}
@@ -205,6 +227,12 @@ void UMyAnimInstance::ResetTargetRotations()
 {
 	PrimaryTargetRotation = Character->GetActorRotation();
 	SecondaryTargetRotation = PrimaryTargetRotation;
+}
+
+void UMyAnimInstance::ResetTransitions()
+{
+	PlayWalkStart = false;
+	PlayJogStart = false;
 }
 
 FRotator UMyAnimInstance::GetTargetRotation()
@@ -228,4 +256,17 @@ void UMyAnimInstance::PrintEnumToString(LOCOMOTION_STATE state)
 		StateString = CharStateEnum->GetNameStringByValue((int64)state);
 	}
 	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, StateString);
+}
+
+FCachedAnimStateData UMyAnimInstance::SetCachedAnimStateDataValues(FCachedAnimStateData structure, const FName state_machine_name, const FName state_name)
+{
+	// Simply setting the struct's values to the input pins of our blueprint node
+	structure.StateMachineName = state_machine_name;
+	structure.StateName = state_name;
+	return structure;
+}
+
+FCachedAnimStateData UMyAnimInstance::MakeCachedAnimStateDataValues(const FName state_machine_name, const FName state_name)
+{	// Calls our other function,  passing in a new CachedAnimStateData, which will set its values 
+	return UMyAnimInstance::SetCachedAnimStateDataValues(FCachedAnimStateData(), state_machine_name, state_name);
 }
