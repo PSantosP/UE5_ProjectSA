@@ -26,9 +26,9 @@ void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 		DetermineLocomotionState();
 
-		TrackLocomotionState(LOCOMOTION_STATE::Idle);
+		//TrackLocomotionState(LOCOMOTION_STATE::Idle);
 		TrackLocomotionState(LOCOMOTION_STATE::Walk);
-		TrackLocomotionState(LOCOMOTION_STATE::Jog);
+		//TrackLocomotionState(LOCOMOTION_STATE::Jog);
 	}
 }
 
@@ -81,6 +81,7 @@ void UMyAnimInstance::DetermineLocomotionState()
 		// 벡터를 먼저 정규화 한 뒤 내적 계산 함
 		if (FVector::DotProduct(Velocity.GetSafeNormal(), CharacterMovement->GetCurrentAcceleration().GetSafeNormal()) < -0.5f)
 		{
+			//UE_LOG(LogTemp, Warning, TEXT("Idle"));
 			LocomotionState = LOCOMOTION_STATE::Idle;
 		}
 		else
@@ -114,6 +115,7 @@ void UMyAnimInstance::TrackLocomotionState(LOCOMOTION_STATE State)
 			switch (LocomotionState)
 			{
 			case LOCOMOTION_STATE::Walk:
+				UE_LOG(LogTemp, Warning, TEXT("DOOnce 상태 = %s"), bFalseHasExcuteOnce ? TEXT("true") : TEXT("false"));
 				UpdateOnWalkEntry();
 				break;
 			case LOCOMOTION_STATE::Jog:
@@ -131,6 +133,7 @@ void UMyAnimInstance::TrackLocomotionState(LOCOMOTION_STATE State)
 	{
 		if (bFalseHasExcuteOnce == false)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("로코모션 스테이트 = %s"), LocomotionState == State ? TEXT("true") : TEXT("false"));
 			bFalseHasExcuteOnce = true;
 			bTrueHasExcuteOnce = false;
 			// OnExit
@@ -150,6 +153,7 @@ void UMyAnimInstance::UpdateLocomotionValues()
 
 void UMyAnimInstance::UpdateOnWalkEntry()
 {
+	UE_LOG(LogTemp, Warning, TEXT("현재 스피드 : %f"), Speed);
 	if (Speed < 50.f)
 	{
 		StartRotation = Character->GetActorRotation();
@@ -200,7 +204,7 @@ void UMyAnimInstance::UpdateCharacterRotation()
 			SecondaryTargetRotation = FMath::RInterpTo(SecondaryTargetRotation, PrimaryTargetRotation, DeltaTimeX, 10.f);
 			GetCurveValue((TEXT("MoveData_WalkRotationDelta")), OutValue);
 			double yawValue = UKismetMathLibrary::SafeDivide(OutValue, WalkStateData.GetGlobalWeight(*this));
-			Character->SetActorRotation(FRotator(SecondaryTargetRotation.Roll, SecondaryTargetRotation.Pitch, SecondaryTargetRotation.Yaw + yawValue));
+			//Character->SetActorRotation(FRotator(SecondaryTargetRotation.Roll, SecondaryTargetRotation.Pitch, SecondaryTargetRotation.Yaw + yawValue));
 			// TODO WalkCachedAnimStateData가 필요
 		}
 			break;
@@ -225,6 +229,7 @@ void UMyAnimInstance::UpdateCharacterRotation()
 
 void UMyAnimInstance::ResetTargetRotations()
 {
+	UE_LOG(LogTemp, Warning, TEXT("회전 리셋"));
 	PrimaryTargetRotation = Character->GetActorRotation();
 	SecondaryTargetRotation = PrimaryTargetRotation;
 }
